@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}หน้าแรก - แคตตาล็อกเสื้อฟุตบอลวินเทจหายาก | Vintage Kits FC{% endblock %}
+
+{% block content %}
+<!-- Football Hero Banner -->
+<section class="relative bg-pitch-stripes border-b border-emerald-800/40 py-16 overflow-hidden">
+    <!-- Pitch Center Circle Graphics -->
+    <div class="absolute inset-0 bg-pitch-lines pointer-events-none opacity-40"></div>
+    <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+    <div class="absolute -left-20 -top-20 w-96 h-96 rounded-full bg-retro-gold/10 blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/50 border border-emerald-600/40 text-emerald-300 text-xs font-semibold mb-4">
+                <i class="fa-solid fa-trophy text-retro-gold"></i>
+                <span>ORIGINAL VINTAGE KITS (1990 - 2008)</span>
+            </div>
+            <h1 class="text-3xl sm:text-5xl font-black font-sports tracking-tight text-white mb-4 uppercase leading-tight">
+                เสื้อฟุตบอลมือสอง<span class="text-retro-gold">วินเทจหายาก</span>
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-light">
+                รวบรวมเสื้อฟุตบอลแท้รุ่นประวัติศาสตร์จากยุค 90s และ 2000s พร้อมป้ายประเมินสภาพ (Condition Tag) ละเอียด ชัดเจน ตรวจสอบสต็อกเรียลไทม์ และระบบตัดสต็อกอัตโนมัติทันที
+            </p>
+
+            <div class="flex flex-wrap items-center gap-3">
+                <a href="#catalog-section" class="px-6 py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm shadow-lg shadow-emerald-900/50 flex items-center gap-2 transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-shirt"></i>
+                    <span>ชมเสื้อฟุตบอลทั้งหมด</span>
+                </a>
+                <a href="{{ url_for('cart') }}" class="px-5 py-3 rounded-xl bg-pitch-900/90 hover:bg-pitch-800 border border-emerald-700/60 text-slate-200 font-semibold text-sm flex items-center gap-2 transition">
+                    <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+                    <span>ไปยังตะกร้าสินค้า</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Catalog Section -->
+<section id="catalog-section" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Search & Filter Bar (Module 1 Scope) -->
+    <div class="glass-panel p-5 rounded-2xl mb-8 shadow-xl">
+        <form method="GET" action="{{ url_for('catalog') }}" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
+            
+            <!-- Search Text -->
+            <div class="lg:col-span-5 relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="ค้นหาชื่อทีม, ฤดูกาล เช่น Man Utd, Arsenal, 2003..." 
+                       class="w-full pl-10 pr-4 py-2.5 bg-pitch-950/90 border border-emerald-700/50 rounded-xl text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500 transition">
+            </div>
+
+            <!-- Size Filter -->
+            <div class="lg:col-span-2">
+                <select name="size" class="w-full py-2.5 px-3 bg-pitch-950/90 border border-emerald-700/50 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                    <option value="">ทุกขนาดไซส์ (All Sizes)</option>
+                    {% for s in sizes %}
+                    <option value="{{ s }}" {% if size_filter == s %}selected{% endif %}>ไซส์ {{ s }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Condition Filter -->
+            <div class="lg:col-span-2">
+                <select name="condition" class="w-full py-2.5 px-3 bg-pitch-950/90 border border-emerald-700/50 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                    <option value="">ทุกระดับสภาพเสื้อ</option>
+                    <option value="ป้ายห้อย" {% if condition_filter == 'ป้ายห้อย' %}selected{% endif %}>ป้ายห้อย (BNWT)</option>
+                    <option value="9.5" {% if condition_filter == '9.5' %}selected{% endif %}>เกรดสะสม (9.5/10)</option>
+                    <option value="9" {% if condition_filter == '9' %}selected{% endif %}>เกรดนางฟ้า (9/10)</option>
+                    <option value="8.5" {% if condition_filter == '8.5' %}selected{% endif %}>เกรดดีมาก (8.5/10)</option>
+                </select>
+            </div>
+
+            <!-- Sort By -->
+            <div class="lg:col-span-2">
+                <select name="sort" class="w-full py-2.5 px-3 bg-pitch-950/90 border border-emerald-700/50 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                    <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>ลงล่าสุด (Newest)</option>
+                    <option value="price_asc" {% if sort_by == 'price_asc' %}selected{% endif %}>ราคา: ต่ำ &rarr; สูง</option>
+                    <option value="price_desc" {% if sort_by == 'price_desc' %}selected{% endif %}>ราคา: สูง &rarr; ต่ำ</option>
+                    <option value="team" {% if sort_by == 'team' %}selected{% endif %}>ชื่อสโมสร (A-Z)</option>
+                </select>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="lg:col-span-1 flex gap-2">
+                <button type="submit" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold text-sm shadow-md transition flex items-center justify-center" title="ค้นหา">
+                    <i class="fa-solid fa-filter"></i>
+                </button>
+                {% if search_query or size_filter or condition_filter or sort_by != 'newest' %}
+                <a href="{{ url_for('catalog') }}" class="py-2.5 px-3 bg-pitch-800 hover:bg-pitch-700 text-slate-300 rounded-xl text-sm transition flex items-center justify-center" title="ล้างตัวกรอง">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-2">
+            <span class="w-2.5 h-6 bg-retro-gold rounded-full inline-block"></span>
+            <h2 class="text-xl sm:text-2xl font-bold text-white tracking-wide">
+                รายการเสื้อฟุตบอลวินเทจ
+            </h2>
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-900/60 border border-emerald-700/60 text-emerald-300 text-xs font-mono font-bold">
+                {{ products|length }} รายการ
+            </span>
+        </div>
+
+        {% if current_user and current_user['role'] == 'admin' %}
+        <a href="{{ url_for('admin_inventory') }}" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-plus"></i>
+            <span>เพิ่มเสื้อตัวใหม่ในคลัง (Admin)</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Product Grid (Module 1 Grid Cards) -->
+    {% if products %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for p in products %}
+        <div class="glass-panel-dark rounded-2xl overflow-hidden border border-emerald-800/40 hover:border-emerald-500/60 shadow-xl transition-all duration-300 hover:-translate-y-1 group flex flex-col justify-between">
+            
+            <!-- Image & Badges Container -->
+            <div class="relative overflow-hidden bg-pitch-950 aspect-square border-b border-emerald-800/30 flex items-center justify-center p-3">
+                <img src="{{ p['image_url'] }}" alt="{{ p['team_name'] }} {{ p['season'] }}" 
+                     class="w-full h-full object-contain group-hover:scale-105 transition duration-500 drop-shadow-lg"
+                     loading="lazy"
+                     onerror="this.src='https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800'">
+
+                <!-- Size Badge (Top Left) -->
+                <div class="absolute top-3 left-3 px-2.5 py-1 rounded-md bg-pitch-950/90 backdrop-blur-md border border-retro-gold/60 text-retro-gold font-sports font-black text-xs shadow-lg">
+                    SIZE {{ p['size'] }}
+                </div>
+
+                <!-- Condition Tag Badge (Top Right) -->
+                <div class="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-emerald-950/90 backdrop-blur-md border border-emerald-400/50 text-emerald-300 text-[11px] font-bold shadow-lg flex items-center gap-1">
+                    <i class="fa-solid fa-certificate text-retro-gold text-[10px]"></i>
+                    <span>{{ p['condition'] }}</span>
+                </div>
+
+                <!-- Stock Alert Overlay (Bottom of Image) -->
+                <div class="absolute bottom-2 left-2 right-2">
+                    {% if p['stock_quantity'] <= 0 %}
+                    <span class="w-full py-1 px-2 rounded-md bg-red-950/90 border border-red-500/60 text-red-300 text-xs font-bold flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-ban"></i> สินค้าหมดชั่วคราว (Sold Out)
+                    </span>
+                    {% elif p['stock_quantity'] < 3 %}
+                    <!-- Low-Stock Alert Badge (< 3) as required by project plan -->
+                    <span class="w-full py-1 px-2 rounded-md bg-amber-950/90 border border-amber-500/80 text-amber-300 text-xs font-bold flex items-center justify-center gap-1 animate-pulse">
+                        <i class="fa-solid fa-fire text-amber-400"></i> เหลือเพียง {{ p['stock_quantity'] }} ตัวสุดท้าย!
+                    </span>
+                    {% else %}
+                    <span class="w-auto inline-flex py-0.5 px-2 rounded-md bg-pitch-950/80 border border-emerald-700/60 text-emerald-400 text-[11px]">
+                        สต็อกคงเหลือ {{ p['stock_quantity'] }} ตัว
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Info Container -->
+            <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                <div>
+                    <h3 class="text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-1">
+                        {{ p['team_name'] }}
+                    </h3>
+                    <p class="text-xs text-slate-300 line-clamp-1 mt-0.5">
+                        {{ p['season'] }}
+                    </p>
+                </div>
+
+                <!-- Price and Action Buttons -->
+                <div class="pt-3 border-t border-emerald-800/40 flex items-center justify-between gap-2">
+                    <div>
+                        <span class="text-[10px] text-slate-400 uppercase tracking-wider block">ราคาจำหน่าย</span>
+                        <span class="text-lg font-black font-sports text-retro-gold">฿{{ "{:,.0f}".format(p['price']) }}</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5">
+                        <!-- Quick View Details -->
+                        <a href="{{ url_for('product_detail', product_id=p['id']) }}" class="p-2 rounded-xl bg-pitch-800 hover:bg-pitch-700 text-slate-300 hover:text-white border border-emerald-700/40 transition" title="ดูรายละเอียด">
+                            <i class="fa-regular fa-eye text-sm"></i>
+                        </a>
+
+                        <!-- Add to Cart (Client Storage) -->
+                        <button type="button" 
+                                onclick='Cart.addItem({{ {
+                                    "id": p["id"],
+                                    "team_name": p["team_name"],
+                                    "season": p["season"],
+                                    "size": p["size"],
+                                    "condition": p["condition"],
+                                    "price": p["price"],
+                                    "stock_quantity": p["stock_quantity"],
+                                    "image_url": p["image_url"]
+                                } | tojson }})'
+                                {% if p['stock_quantity'] <= 0 %}disabled{% endif %}
+                                class="px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition {% if p['stock_quantity'] <= 0 %}bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700{% else %}bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-emerald-900/50{% endif %}">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>ใส่ตะกร้า</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="glass-panel p-12 text-center rounded-2xl max-w-lg mx-auto my-8">
+        <i class="fa-regular fa-futbol text-5xl text-emerald-600 mb-4 animate-bounce"></i>
+        <h3 class="text-lg font-bold text-white mb-2">ไม่พบเสื้อฟุตบอลที่ตรงกับเงื่อนไข</h3>
+        <p class="text-xs text-slate-400 mb-6">ลองเปลี่ยนคำค้นหา หรือเคลียร์ตัวกรองไซส์และสภาพเสื้อ</p>
+        <a href="{{ url_for('catalog') }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition">
+            ดูเสื้อฟุตบอลทั้งหมด
+        </a>
+    </div>
+    {% endif %}
+
+</section>
+{% endblock %}

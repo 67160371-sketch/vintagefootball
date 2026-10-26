@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product['team_name'] }} ({{ product['season'] }}) - รายละเอียดเสื้อฟุตบอลวินเทจ{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs text-slate-400 mb-6">
+        <a href="{{ url_for('catalog') }}" class="hover:text-emerald-400">หน้าแรก</a>
+        <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <span class="text-white font-medium">{{ product['team_name'] }}</span>
+    </nav>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 glass-panel-dark p-6 sm:p-8 rounded-3xl border border-emerald-800/40 shadow-2xl">
+        
+        <!-- Left: Image Display -->
+        <div class="space-y-4">
+            <div class="relative aspect-square rounded-2xl overflow-hidden bg-pitch-950 border border-emerald-700/50 shadow-inner group flex items-center justify-center p-6">
+                <img src="{{ product['image_url'] }}" alt="{{ product['team_name'] }}" 
+                     class="w-full h-full object-contain group-hover:scale-105 transition duration-500 drop-shadow-2xl"
+                     onerror="this.src='https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800'">
+                
+                <div class="absolute top-4 left-4 px-3 py-1.5 rounded-lg bg-pitch-950/90 border border-retro-gold text-retro-gold font-sports font-black text-sm shadow-xl">
+                    SIZE {{ product['size'] }}
+                </div>
+
+                <div class="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-bold text-xs shadow-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-certificate text-retro-gold"></i>
+                    <span>{{ product['condition'] }}</span>
+                </div>
+            </div>
+
+            <!-- Guarantee Badges -->
+            <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="p-3 rounded-xl bg-pitch-900/60 border border-emerald-800/30">
+                    <i class="fa-solid fa-certificate text-retro-gold text-lg mb-1 block"></i>
+                    <p class="text-[11px] font-bold text-white">ของแท้ 100%</p>
+                    <p class="text-[10px] text-slate-400">Authentic Guaranteed</p>
+                </div>
+                <div class="p-3 rounded-xl bg-pitch-900/60 border border-emerald-800/30">
+                    <i class="fa-solid fa-shield-halved text-emerald-400 text-lg mb-1 block"></i>
+                    <p class="text-[11px] font-bold text-white">ตรวจเช็กสภาพ</p>
+                    <p class="text-[10px] text-slate-400">ประเมินโดยผู้เชี่ยวชาญ</p>
+                </div>
+                <div class="p-3 rounded-xl bg-pitch-900/60 border border-emerald-800/30">
+                    <i class="fa-solid fa-truck-fast text-sky-400 text-lg mb-1 block"></i>
+                    <p class="text-[11px] font-bold text-white">จัดส่งรวดเร็ว</p>
+                    <p class="text-[10px] text-slate-400">แพ็คกันกระแทกพิเศษ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Details & Purchase -->
+        <div class="flex flex-col justify-between space-y-6">
+            <div>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-900/50 border border-emerald-600/50 text-emerald-300 text-xs font-semibold mb-3">
+                    <i class="fa-regular fa-futbol"></i>
+                    <span>VINTAGE RETRO COLLECTION</span>
+                </div>
+
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-sports tracking-wide mb-2">
+                    {{ product['team_name'] }}
+                </h1>
+                <p class="text-emerald-300 text-base font-semibold mb-4">
+                    ฤดูกาล / รุ่น: {{ product['season'] }}
+                </p>
+
+                <!-- Price Box -->
+                <div class="p-4 rounded-2xl bg-pitch-900/80 border border-emerald-700/50 flex items-center justify-between mb-6">
+                    <div>
+                        <span class="text-xs text-slate-400 uppercase tracking-wider">ราคาประเมินพิเศษ</span>
+                        <div class="text-3xl font-black font-sports text-retro-gold">
+                            ฿{{ "{:,.0f}".format(product['price']) }}
+                        </div>
+                    </div>
+
+                    <!-- Stock Status Tag -->
+                    <div class="text-right">
+                        {% if product['stock_quantity'] <= 0 %}
+                        <span class="px-3 py-1 rounded-full bg-red-950 border border-red-500 text-red-400 text-xs font-bold inline-block">
+                            สินค้าหมด (Sold Out)
+                        </span>
+                        {% elif product['stock_quantity'] < 3 %}
+                        <span class="px-3 py-1 rounded-full bg-amber-950 border border-amber-500 text-amber-300 text-xs font-bold inline-block animate-pulse">
+                            🔥 สต็อกต่ำ เหลือเพียง {{ product['stock_quantity'] }} ตัว!
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-emerald-950 border border-emerald-500 text-emerald-300 text-xs font-bold inline-block">
+                            มีสินค้าพร้อมส่ง {{ product['stock_quantity'] }} ตัว
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Attributes Table -->
+                <div class="space-y-3 mb-6 text-sm">
+                    <div class="flex items-center justify-between py-2 border-b border-emerald-800/40">
+                        <span class="text-slate-400">สโมสร / ทีมชาติ:</span>
+                        <span class="font-bold text-white">{{ product['team_name'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-emerald-800/40">
+                        <span class="text-slate-400">ขนาดไซส์ (Size):</span>
+                        <span class="font-bold text-retro-gold font-sports text-base">ไซส์ {{ product['size'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-emerald-800/40">
+                        <span class="text-slate-400">ระดับสภาพเสื้อ (Condition Tag):</span>
+                        <span class="font-bold text-emerald-400">{{ product['condition'] }}</span>
+                    </div>
+                    <div class="flex items-center justify-between py-2 border-b border-emerald-800/40">
+                        <span class="text-slate-400">รหัสสินค้า (Product ID):</span>
+                        <span class="font-mono text-xs text-slate-300">#VINTAGE-{{ product['id'] }}</span>
+                    </div>
+                </div>
+
+                <!-- Detailed Description & Care -->
+                <div class="p-4 rounded-xl bg-pitch-950/70 border border-emerald-800/30 text-xs text-slate-300 space-y-1.5 leading-relaxed">
+                    <p class="font-bold text-white"><i class="fa-solid fa-shirt text-retro-gold mr-1.5"></i> ข้อแนะนำการดูแลรักษาเสื้อวินเทจ:</p>
+                    <p>• ซักมือด้วยน้ำเย็น หลีกเลี่ยงการบิดแรงเพื่อถนอมเนื้อผ้าและสกรีนแท้ดั้งเดิม</p>
+                    <p>• ตากในที่ร่ม หลีกเลี่ยงแสงแดดจัด และห้ามรีดทับสปอนเซอร์หรือเบอร์ชื่อโดยตรง</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="pt-4 border-t border-emerald-800/40 space-y-3">
+                <button type="button" 
+                        onclick='Cart.addItem({{ {
+                            "id": product["id"],
+                            "team_name": product["team_name"],
+                            "season": product["season"],
+                            "size": product["size"],
+                            "condition": product["condition"],
+                            "price": product["price"],
+                            "stock_quantity": product["stock_quantity"],
+                            "image_url": product["image_url"]
+                        } | tojson }})'
+                        {% if product['stock_quantity'] <= 0 %}disabled{% endif %}
+                        class="w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition shadow-lg {% if product['stock_quantity'] <= 0 %}bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700{% else %}bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-emerald-900/50 hover:-translate-y-0.5{% endif %}">
+                    <i class="fa-solid fa-cart-plus text-base"></i>
+                    <span>{% if product['stock_quantity'] <= 0 %}สินค้าหมด (Sold Out){% else %}เพิ่มเสื้อตัวนี้ลงในตะกร้าสินค้า (Add to Cart){% endif %}</span>
+                </button>
+
+                <a href="{{ url_for('cart') }}" class="w-full py-3 rounded-xl bg-pitch-900 hover:bg-pitch-800 border border-emerald-700/60 text-slate-200 text-xs font-semibold flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+                    <span>ไปที่ตะกร้าสินค้าเพื่อสั่งซื้อ</span>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

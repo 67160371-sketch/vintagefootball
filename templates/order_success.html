@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}สั่งซื้อสำเร็จ - ใบเสร็จคำสั่งซื้อ #{{ order['id'] }} | Vintage Kits FC{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+    <!-- Success Card with Football Pitch Aesthetic -->
+    <div class="glass-panel-dark rounded-3xl border border-emerald-500/50 p-6 sm:p-10 shadow-2xl relative overflow-hidden">
+        
+        <!-- Top Stadium Ribbon -->
+        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-500 via-retro-gold to-emerald-500"></div>
+
+        <!-- Success Header -->
+        <div class="text-center pb-6 border-b border-emerald-800/40">
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-emerald-950">
+                <i class="fa-solid fa-check-double text-2xl"></i>
+            </div>
+            <span class="text-xs uppercase font-bold tracking-widest text-retro-gold block mb-1">MATCHDAY ORDER CONFIRMED</span>
+            <h1 class="text-2xl sm:text-3xl font-black text-white font-sports">บันทึกคำสั่งซื้อสำเร็จ!</h1>
+            <p class="text-xs text-emerald-300 mt-1">
+                ระบบได้สร้าง Order ลงฐานข้อมูล และทำการตัดสต็อกเสื้อฟุตบอลในคลังสินค้าทันที
+            </p>
+        </div>
+
+        <!-- Order Summary Meta Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 my-6 p-4 rounded-2xl bg-pitch-950/80 border border-emerald-800/40 text-xs">
+            <div>
+                <span class="text-slate-400 block text-[11px]">หมายเลขคำสั่งซื้อ:</span>
+                <span class="font-bold text-retro-gold font-sports text-sm">#ORD-{{ "%05d"|format(order['id']) }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">สถานะคำสั่งซื้อ:</span>
+                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[11px] mt-0.5">
+                    <i class="fa-solid fa-clock"></i> {{ order['status'] }}
+                </span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">วันที่ทำรายการ:</span>
+                <span class="font-medium text-white">{{ order['created_at'][:16] }}</span>
+            </div>
+            <div>
+                <span class="text-slate-400 block text-[11px]">ยอดรวมทั้งสิ้น:</span>
+                <span class="font-black text-retro-gold font-sports text-base">฿{{ "{:,.0f}".format(order['total_amount']) }}</span>
+            </div>
+        </div>
+
+        <!-- Shipping Address Card -->
+        <div class="mb-6 p-4 rounded-2xl bg-pitch-900/40 border border-emerald-800/30 text-xs space-y-1">
+            <h3 class="font-bold text-white flex items-center gap-1.5 text-sm mb-2 text-emerald-400">
+                <i class="fa-solid fa-location-dot"></i>
+                <span>ที่อยู่สำหรับจัดส่งพัสดุ (Shipping Address)</span>
+            </h3>
+            <p class="text-white font-medium">{{ order['customer_name'] or 'ลูกค้าทั่วไป' }} {% if order['customer_email'] %}({{ order['customer_email'] }}){% endif %}</p>
+            <p class="text-slate-300 leading-relaxed">{{ order['shipping_address'] }}</p>
+        </div>
+
+        <!-- Ordered Items Table -->
+        <div class="space-y-3 mb-8">
+            <h3 class="font-bold text-white text-sm flex items-center gap-2">
+                <i class="fa-solid fa-shirt text-retro-gold"></i>
+                <span>รายการเสื้อฟุตบอลที่สั่งซื้อ ({{ items|length }} รายการ)</span>
+            </h3>
+
+            <div class="space-y-2">
+                {% for item in items %}
+                <div class="flex items-center justify-between p-3 rounded-xl bg-pitch-950 border border-emerald-800/40 gap-3">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ item['image_url'] }}" alt="{{ item['team_name'] }}" class="w-14 h-14 object-cover rounded-lg border border-emerald-700/50" onerror="this.src='https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800'">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-white text-sm">{{ item['team_name'] }}</h4>
+                                <span class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold">ไซส์ {{ item['size'] }}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-300">{{ item['season'] }}</p>
+                            <p class="text-[10px] text-emerald-400"><i class="fa-solid fa-certificate text-[9px] mr-1"></i>{{ item['condition'] }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-xs text-slate-400 font-sports">{{ item['quantity'] }} &times; ฿{{ "{:,.0f}".format(item['price']) }}</p>
+                        <p class="text-sm font-bold text-retro-gold font-sports">฿{{ "{:,.0f}".format(item['quantity'] * item['price']) }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Action Links -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-emerald-800/40">
+            <a href="{{ url_for('catalog') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-pitch-900 hover:bg-pitch-800 border border-emerald-700/60 text-slate-200 text-xs font-semibold text-center transition">
+                <i class="fa-solid fa-store mr-1.5"></i> เลือกซื้อเสื้อเพิ่มเติม
+            </a>
+
+            {% if current_user and current_user['role'] == 'customer' %}
+            <a href="{{ url_for('my_orders') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold text-center shadow-lg transition">
+                <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> ไปที่หน้าประวัติคำสั่งซื้อของฉัน
+            </a>
+            {% elif current_user and current_user['role'] == 'admin' %}
+            <a href="{{ url_for('admin_orders') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold text-center shadow-lg transition">
+                <i class="fa-solid fa-truck-fast mr-1.5"></i> ไปยังหน้าจัดการออเดอร์ (Admin)
+            </a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold text-center shadow-lg transition">
+                <i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i> เข้าสู่ระบบเพื่อผูกประวัติคำสั่งซื้อ
+            </a>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

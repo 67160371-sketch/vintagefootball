@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}จัดการคลังสินค้าเสื้อฟุตบอล (Inventory CRUD) | Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 mb-8 border-b border-emerald-800/40 gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-bold uppercase">
+                    Module 6: Inventory Management
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-sports tracking-wide">
+                    จัดการคลังเสื้อฟุตบอล (CRUD)
+                </h1>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+                เพิ่ม แก้ไข ลบ กำหนดราคา สภาพเสื้อ ไซส์ และจำนวนสต็อกคงเหลือ พร้อมระบบตรวจจับสต็อกต่ำกว่า 3 ชิ้น
+            </p>
+        </div>
+
+        <!-- Add Button -->
+        <button onclick="openAddModal()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-xs shadow-lg shadow-emerald-950 flex items-center gap-2 transition">
+            <i class="fa-solid fa-plus text-sm"></i>
+            <span>เพิ่มเสื้อฟุตบอลตัวใหม่</span>
+        </button>
+    </div>
+
+    <!-- Inventory Table Card -->
+    <div class="glass-panel-dark rounded-3xl border border-emerald-800/40 p-6 shadow-2xl">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-emerald-800/40">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-boxes-stacked text-retro-gold"></i>
+                <span>รายการเสื้อทั้งหมดในคลัง ({{ products|length }} รุ่น)</span>
+            </h2>
+
+            <div class="text-xs text-slate-400">
+                <span class="inline-block w-3 h-3 rounded-full bg-red-500 mr-1 align-middle"></span>
+                <span>แถบสีแดง = สต็อกต่ำกว่า 3 ตัว (Low-Stock Alert)</span>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-emerald-800/50 text-slate-400 font-bold uppercase tracking-wider">
+                        <th class="py-3 px-3">รูปภาพ</th>
+                        <th class="py-3 px-3">ชื่อทีม &bull; สโมสร</th>
+                        <th class="py-3 px-3">ฤดูกาล / รุ่น</th>
+                        <th class="py-3 px-3">ไซส์</th>
+                        <th class="py-3 px-3">สภาพเสื้อ (Condition)</th>
+                        <th class="py-3 px-3">ราคา (บาท)</th>
+                        <th class="py-3 px-3">สต็อกคงเหลือ</th>
+                        <th class="py-3 px-3 text-right">การจัดการ</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-emerald-800/30">
+                    {% for p in products %}
+                    <tr class="hover:bg-pitch-900/60 transition {% if p['stock_quantity'] < 3 %}bg-red-950/20{% endif %}">
+                        <!-- Image -->
+                        <td class="py-3 px-3">
+                            <img src="{{ p['image_url'] }}" alt="{{ p['team_name'] }}" class="w-12 h-12 object-cover rounded-lg border {% if p['stock_quantity'] < 3 %}border-red-500/70{% else %}border-emerald-700/50{% endif %}" onerror="this.src='https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800'">
+                        </td>
+
+                        <!-- Team -->
+                        <td class="py-3 px-3 font-bold text-white text-sm">
+                            {{ p['team_name'] }}
+                        </td>
+
+                        <!-- Season -->
+                        <td class="py-3 px-3 text-slate-300">
+                            {{ p['season'] }}
+                        </td>
+
+                        <!-- Size -->
+                        <td class="py-3 px-3">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 font-sports font-bold text-xs">
+                                {{ p['size'] }}
+                            </span>
+                        </td>
+
+                        <!-- Condition -->
+                        <td class="py-3 px-3 text-emerald-400 font-medium">
+                            <i class="fa-solid fa-certificate text-[10px] mr-1 text-retro-gold"></i>
+                            {{ p['condition'] }}
+                        </td>
+
+                        <!-- Price -->
+                        <td class="py-3 px-3 font-sports font-bold text-retro-gold text-sm">
+                            ฿{{ "{:,.0f}".format(p['price']) }}
+                        </td>
+
+                        <!-- Stock with Low-Stock Alert condition (< 3) -->
+                        <td class="py-3 px-3">
+                            {% if p['stock_quantity'] <= 0 %}
+                            <span class="px-2.5 py-1 rounded-md bg-red-600 text-white font-bold text-[11px] inline-flex items-center gap-1 shadow">
+                                <i class="fa-solid fa-ban"></i> หมด (0 ตัว)
+                            </span>
+                            {% elif p['stock_quantity'] < 3 %}
+                            <span class="px-2.5 py-1 rounded-md bg-red-600/90 border border-red-500 text-white font-bold text-[11px] inline-flex items-center gap-1 shadow animate-pulse">
+                                <i class="fa-solid fa-fire text-amber-300"></i> วิกฤต: {{ p['stock_quantity'] }} ตัว
+                            </span>
+                            {% else %}
+                            <span class="px-2.5 py-1 rounded-md bg-emerald-900/60 border border-emerald-600/50 text-emerald-300 font-bold text-[11px]">
+                                {{ p['stock_quantity'] }} ตัว
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-3 px-3 text-right">
+                            <div class="inline-flex items-center gap-2">
+                                <!-- Edit Button -->
+                                <button type="button" 
+                                        onclick='openEditModal({{ {
+                                            "id": p["id"],
+                                            "team_name": p["team_name"],
+                                            "season": p["season"],
+                                            "size": p["size"],
+                                            "condition": p["condition"],
+                                            "price": p["price"],
+                                            "stock_quantity": p["stock_quantity"],
+                                            "image_url": p["image_url"]
+                                        } | tojson }})'
+                                        class="p-2 rounded-lg bg-pitch-800 hover:bg-emerald-700 text-slate-300 hover:text-white transition" title="แก้ไขข้อมูลเสื้อ">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+
+                                <!-- Delete Form -->
+                                <form method="POST" action="{{ url_for('admin_delete_product', product_id=p['id']) }}" onsubmit="return confirm('ยืนยันที่จะลบเสื้อ {{ p['team_name'] }} ({{ p['season'] }}) ออกจากระบบหรือไม่?')">
+                                    <button type="submit" class="p-2 rounded-lg bg-pitch-800 hover:bg-red-700 text-red-400 hover:text-white transition" title="ลบสินค้า">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div id="addModal" class="fixed inset-0 bg-pitch-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-dark border border-emerald-600 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <button onclick="closeAddModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <h3 class="text-xl font-black text-white font-sports flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-plus-circle text-emerald-400"></i>
+            <span>เพิ่มเสื้อฟุตบอลมือสองใหม่</span>
+        </h3>
+
+        <form method="POST" action="{{ url_for('admin_add_product') }}" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">ชื่อสโมสร / ทีมชาติ <span class="text-red-400">*</span></label>
+                <input type="text" name="team_name" required placeholder="เช่น Manchester United, Arsenal, Brazil"
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">ปีฤดูกาล / รุ่นเสื้อ <span class="text-red-400">*</span></label>
+                <input type="text" name="season" required placeholder="เช่น 1998-1999 Treble Home (Final Camp Nou)"
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">ขนาดไซส์ (Size) <span class="text-red-400">*</span></label>
+                    <select name="size" class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                        <option value="S">S</option>
+                        <option value="M" selected>M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">สภาพเสื้อ (Condition Tag) <span class="text-red-400">*</span></label>
+                    <input type="text" name="condition" required placeholder="เช่น 9.5/10 สภาพสะสม หรือ ป้ายห้อย (BNWT)"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">ราคาจำหน่าย (บาท) <span class="text-red-400">*</span></label>
+                    <input type="number" step="50" name="price" required placeholder="เช่น 3900"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">จำนวนสต็อกคงเหลือ <span class="text-red-400">*</span></label>
+                    <input type="number" name="stock_quantity" required min="0" value="1"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                    <p class="text-[10px] text-slate-400 mt-1">ใส่น้อยกว่า 3 ระบบจะเตือน Low-Stock Alert</p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">รูปภาพสินค้า (Image URL)</label>
+                <input type="url" name="image_url" placeholder="https://..."
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                <p class="text-[10px] text-slate-400 mt-1">เว้นว่างไว้จะใช้รูปภาพจำลองอัตโนมัติ</p>
+            </div>
+
+            <div class="pt-2 flex gap-3">
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition">
+                    บันทึกข้อมูลเสื้อ
+                </button>
+                <button type="button" onclick="closeAddModal()" class="px-5 py-3 rounded-xl bg-pitch-800 hover:bg-pitch-700 text-slate-300 text-xs font-semibold transition">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT PRODUCT MODAL -->
+<div id="editModal" class="fixed inset-0 bg-pitch-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-dark border border-amber-600 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+        <button onclick="closeEditModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <h3 class="text-xl font-black text-white font-sports flex items-center gap-2 mb-4">
+            <i class="fa-solid fa-pen-to-square text-amber-400"></i>
+            <span>แก้ไขข้อมูลเสื้อฟุตบอล</span>
+        </h3>
+
+        <form id="editForm" method="POST" action="" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">ชื่อสโมสร / ทีมชาติ</label>
+                <input type="text" id="edit_team_name" name="team_name" required
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">ปีฤดูกาล / รุ่นเสื้อ</label>
+                <input type="text" id="edit_season" name="season" required
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">ขนาดไซส์</label>
+                    <select id="edit_size" name="size" class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">สภาพเสื้อ (Condition Tag)</label>
+                    <input type="text" id="edit_condition" name="condition" required
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">ราคาจำหน่าย (บาท)</label>
+                    <input type="number" step="50" id="edit_price" name="price" required
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">จำนวนสต็อกคงเหลือ</label>
+                    <input type="number" id="edit_stock_quantity" name="stock_quantity" required min="0"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">รูปภาพสินค้า (Image URL)</label>
+                <input type="url" id="edit_image_url" name="image_url"
+                       class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div class="pt-2 flex gap-3">
+                <button type="submit" class="flex-1 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg transition">
+                    บันทึกการแก้ไข
+                </button>
+                <button type="button" onclick="closeEditModal()" class="px-5 py-3 rounded-xl bg-pitch-800 hover:bg-pitch-700 text-slate-300 text-xs font-semibold transition">
+                    ยกเลิก
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openAddModal() {
+    document.getElementById('addModal').classList.remove('hidden');
+}
+function closeAddModal() {
+    document.getElementById('addModal').classList.add('hidden');
+}
+
+function openEditModal(product) {
+    document.getElementById('editForm').action = `/admin/product/edit/${product.id}`;
+    document.getElementById('edit_team_name').value = product.team_name;
+    document.getElementById('edit_season').value = product.season;
+    document.getElementById('edit_size').value = product.size;
+    document.getElementById('edit_condition').value = product.condition;
+    document.getElementById('edit_price').value = product.price;
+    document.getElementById('edit_stock_quantity').value = product.stock_quantity;
+    document.getElementById('edit_image_url').value = product.image_url;
+    document.getElementById('editModal').classList.remove('hidden');
+}
+function closeEditModal() {
+    document.getElementById('editModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

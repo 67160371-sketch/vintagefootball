@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}ตะกร้าสินค้า &amp; ชำระเงิน | Vintage Kits FC{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8 pb-4 border-b border-emerald-800/40">
+        <div>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-cart-shopping text-retro-gold text-2xl"></i>
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-sports tracking-wide">
+                    ตะกร้าสินค้า &amp; สั่งซื้อ (CHECKOUT)
+                </h1>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+                โมดูลที่ 2: ระบบตะกร้าฝั่ง Client คำนวณราคาสุทธิ พร้อมบันทึกคำสั่งซื้อและตัดสต็อกสินค้าทันที
+            </p>
+        </div>
+
+        <a href="{{ url_for('catalog') }}" class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-arrow-left"></i>
+            <span>เลือกซื้อเสื้อเพิ่ม</span>
+        </a>
+    </div>
+
+    <!-- Empty State -->
+    <div id="cart-empty-state" class="glass-panel p-12 text-center rounded-3xl max-w-lg mx-auto my-12 hidden">
+        <div class="w-20 h-20 rounded-full bg-emerald-950/80 border border-emerald-700/50 flex items-center justify-center mx-auto mb-4">
+            <i class="fa-solid fa-cart-plus text-3xl text-emerald-500"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white mb-2">ยังไม่มีเสื้อฟุตบอลในตะกร้าของคุณ</h3>
+        <p class="text-xs text-slate-400 mb-6 leading-relaxed">
+            เลือกช้อปเสื้อฟุตบอลวินเทจแท้หายาก ยุค 90s-2000s คุณภาพระดับสะสมได้เลยตอนนี้
+        </p>
+        <a href="{{ url_for('catalog') }}" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg transition inline-flex items-center gap-2">
+            <i class="fa-solid fa-shirt"></i>
+            <span>ไปเลือกเสื้อฟุตบอล</span>
+        </a>
+    </div>
+
+    <!-- Active Cart Layout (Grid 2 cols) -->
+    <div id="cart-summary-box" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left: Cart Items List (8 cols) -->
+        <div class="lg:col-span-7 space-y-4">
+            <div class="flex items-center justify-between px-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400">รายการเสื้อในตะกร้า</span>
+                <button onclick="if(confirm('ต้องการล้างสินค้าทั้งหมดในตะกร้าหรือไม่?')) { Cart.clear(); Cart.renderCartPage(); }" class="text-xs text-red-400 hover:text-red-300 transition">
+                    <i class="fa-regular fa-trash-can mr-1"></i> ล้างตะกร้า
+                </button>
+            </div>
+
+            <!-- Dynamic items container rendered by Cart.renderCartPage() -->
+            <div id="cart-items-container" class="space-y-3">
+                <!-- Javascript will populate items here -->
+            </div>
+
+            <!-- Authentic Warranty Box -->
+            <div class="p-4 rounded-2xl bg-pitch-900/40 border border-emerald-800/30 text-xs text-slate-300 flex items-start gap-3 mt-4">
+                <i class="fa-solid fa-shield-check text-retro-gold text-lg mt-0.5"></i>
+                <div>
+                    <h4 class="font-bold text-white">ระบบตัดสต็อกสินค้าทันที (Real-time Inventory Deduction)</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">
+                        เมื่อกดยืนยันคำสั่งซื้อ ข้อมูลจะถูกบันทึกลงฐานข้อมูล SQLite (ตาราง Orders และ Order_Items) พร้อมหักลดสต็อกคงเหลือในตาราง Products ทันที เพื่อป้องกันสินค้าหมด
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Checkout & Address Form (5 cols) -->
+        <div class="lg:col-span-5 glass-panel-dark p-6 rounded-3xl border border-emerald-800/50 shadow-2xl space-y-6">
+            
+            <div class="border-b border-emerald-800/40 pb-4">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice text-emerald-400"></i>
+                    <span>สรุปคำสั่งซื้อ &amp; จัดส่ง</span>
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">กรอกข้อมูลที่อยู่เพื่อบันทึก Order</p>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="space-y-2.5 text-xs">
+                <div class="flex items-center justify-between text-slate-300">
+                    <span>จำนวนเสื้อฟุตบอล:</span>
+                    <span id="summary-items-count" class="font-bold text-white font-sports">0 ตัว</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-300">
+                    <span>ค่าจัดส่งพัสดุด่วน (EMS Express):</span>
+                    <span class="text-emerald-400 font-bold">ฟรี (Free Shipping)</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-300">
+                    <span>ประกันพัสดุเสื้อวินเทจ:</span>
+                    <span class="text-emerald-400 font-bold">ฟรี (Free Insurance)</span>
+                </div>
+
+                <div class="border-t border-emerald-800/40 pt-3 flex items-center justify-between text-sm">
+                    <span class="font-bold text-white">ยอดชำระสุทธิ (Total Net):</span>
+                    <span id="summary-total" class="font-black text-2xl text-retro-gold font-sports">฿0</span>
+                </div>
+            </div>
+
+            <!-- Customer Shipping Form -->
+            <form id="checkout-form" onsubmit="Cart.submitCheckout(event)" class="space-y-4 pt-2">
+                
+                {% if user %}
+                <div class="p-3 rounded-xl bg-emerald-950/60 border border-emerald-700/50 flex items-center justify-between text-xs">
+                    <div>
+                        <span class="text-slate-400 block">สั่งซื้อในชื่อบัญชี:</span>
+                        <strong class="text-white">{{ user['name'] }}</strong>
+                        <span class="text-emerald-400 block text-[11px]">{{ user['email'] }}</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-emerald-700/50 text-emerald-200 text-[10px] font-bold">เข้าสู่ระบบแล้ว</span>
+                </div>
+                <input type="hidden" id="recipient_name" value="{{ user['name'] }}">
+                <input type="hidden" id="recipient_email" value="{{ user['email'] }}">
+                {% else %}
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">
+                        ชื่อ-นามสกุล ผู้รับพัสดุ <span class="text-red-400">*</span>
+                    </label>
+                    <input type="text" id="recipient_name" required placeholder="เช่น สมชาย รักฟุตบอล"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">
+                        อีเมลติดต่อ <span class="text-red-400">*</span>
+                    </label>
+                    <input type="email" id="recipient_email" required placeholder="เช่น yourname@gmail.com"
+                           class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500">
+                </div>
+                {% endif %}
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">
+                        ที่อยู่สำหรับจัดส่งพัสดุ (Shipping Address) <span class="text-red-400">*</span>
+                    </label>
+                    <textarea id="shipping_address" required rows="3" placeholder="บ้านเลขที่, หมู่, ถนน, แขวง/ตำบล, เขต/อำเภอ, จังหวัด, รหัสไปรษณีย์"
+                              class="w-full px-3.5 py-2.5 bg-pitch-950 border border-emerald-700/50 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 leading-relaxed">{% if user and user['address'] %}{{ user['address'] }}{% endif %}</textarea>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="checkout-btn" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm shadow-xl shadow-emerald-950/80 transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check text-base"></i>
+                        <span>ยืนยันการสั่งซื้อ &amp; ตัดสต็อก (Confirm Order)</span>
+                    </button>
+                    <p class="text-[10px] text-center text-slate-400 mt-2">
+                        <i class="fa-solid fa-lock text-emerald-400 mr-1"></i> ปลอดภัย บันทึกลงฐานข้อมูล SQLite เรียลไทม์
+                    </p>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - สรุปยอดขาย &amp; เตือนสต็อกต่ำ | Vintage Kits FC{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+    <!-- Top Admin Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 mb-8 border-b border-emerald-800/40 gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/40 text-xs font-bold uppercase tracking-wider">
+                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin Console
+                </span>
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-sports tracking-wide">
+                    แผงควบคุมระบบ (ADMIN DASHBOARD)
+                </h1>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">
+                โมดูลที่ 5: หน้าสรุปตัวเลขยอดขายรวม (SUM), คำสั่งซื้อที่รอจัดการ และระบบเตือนสต็อกต่ำกว่า 3 ชิ้น
+            </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{{ url_for('admin_inventory') }}" class="px-3.5 py-2 rounded-xl bg-pitch-900 hover:bg-pitch-800 border border-emerald-700/60 text-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-boxes-stacked"></i>
+                <span>จัดการคลังเสื้อ</span>
+            </a>
+            <a href="{{ url_for('admin_orders') }}" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-lg">
+                <i class="fa-solid fa-truck-fast"></i>
+                <span>จัดการคำสั่งซื้อ</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 4 Core Stat Cards (Phase 2 Requirement) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        
+        <!-- Card 1: Total Revenue (SUM(total_amount)) -->
+        <div class="glass-panel-dark p-5 rounded-2xl border border-emerald-500/40 shadow-xl relative overflow-hidden group">
+            <div class="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-emerald-500/10 blur-xl group-hover:scale-125 transition duration-500"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">ยอดขายรวม (Total Revenue)</span>
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
+                    <i class="fa-solid fa-sack-dollar text-base"></i>
+                </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-retro-gold font-sports">
+                ฿{{ "{:,.0f}".format(total_revenue) }}
+            </div>
+            <p class="text-[11px] text-emerald-400 mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                <span>SUM(total_amount) จากออเดอร์ทั้งหมด</span>
+            </p>
+        </div>
+
+        <!-- Card 2: Pending Orders -->
+        <div class="glass-panel-dark p-5 rounded-2xl border border-amber-500/40 shadow-xl relative overflow-hidden group">
+            <div class="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-amber-500/10 blur-xl group-hover:scale-125 transition duration-500"></div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">รอจัดการจัดส่ง (Pending)</span>
+                <div class="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+                    <i class="fa-solid fa-clock text-base"></i>
+                </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-white font-sports">
+                {{ pending_orders_count }} <span class="text-sm font-normal text-slate-400">ออเดอร์</span>
+            </div>
+            <p class="text-[11px] {% if pending_orders_count > 0 %}text-amber-400 animate-pulse{% else %}text-slate-400{% endif %} mt-2 flex items-center gap-1">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>ต้องการการเปลี่ยนสถานะเป็น Shipped</span>
+            </p>
+        </div>
+
+        <!-- Card 3: Total Orders -->
+        <div class="glass-panel-dark p-5 rounded-2xl border border-emerald-800/40 shadow-xl relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">คำสั่งซื้อทั้งหมด (Total Orders)</span>
+                <div class="w-9 h-9 rounded-xl bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400">
+                    <i class="fa-solid fa-receipt text-base"></i>
+                </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-white font-sports">
+                {{ total_orders_count }} <span class="text-sm font-normal text-slate-400">รายการ</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">
+                นับรวมทุกสถานะในระบบ
+            </p>
+        </div>
+
+        <!-- Card 4: Low Stock Count Alert -->
+        <div class="glass-panel-dark p-5 rounded-2xl border {% if low_stock_products|length > 0 %}border-red-500 red-alert-glow{% else %}border-emerald-800/40{% endif %} shadow-xl relative overflow-hidden group">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">เตือนสต็อกต่ำ (&lt; 3 ชิ้น)</span>
+                <div class="w-9 h-9 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
+                    <i class="fa-solid fa-triangle-exclamation text-base"></i>
+                </div>
+            </div>
+            <div class="text-2xl sm:text-3xl font-black text-red-400 font-sports">
+                {{ low_stock_products|length }} <span class="text-sm font-normal text-slate-400">รุ่นเสื้อ</span>
+            </div>
+            <p class="text-[11px] text-red-400 mt-2 font-bold">
+                <i class="fa-solid fa-fire mr-1"></i> stock_quantity &lt; 3 ดักจับอัตโนมัติ
+            </p>
+        </div>
+
+    </div>
+
+    <!-- Low-Stock Alert Section (Explicit Requirement in Phase 2) -->
+    <div class="mb-10">
+        <div class="p-6 rounded-3xl {% if low_stock_products|length > 0 %}bg-gradient-to-r from-red-950/60 via-pitch-900 to-red-950/60 border-2 border-red-500/60 shadow-2xl{% else %}glass-panel-dark border border-emerald-800/40{% endif %}">
+            
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-red-800/30 gap-2 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-red-400"></i>
+                        <span>ป้ายเตือนสต็อกสินค้าต่ำ (Low-Stock Alert: stock &lt; 3)</span>
+                    </h2>
+                </div>
+                <span class="text-xs font-mono px-3 py-1 rounded-full bg-red-900/60 border border-red-500/80 text-red-200 font-bold">
+                    พบสินค้าวิกฤต: {{ low_stock_products|length }} รายการ
+                </span>
+            </div>
+
+            {% if low_stock_products %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {% for item in low_stock_products %}
+                <div class="p-3.5 rounded-xl bg-pitch-950/90 border border-red-600/40 flex items-center justify-between gap-3 shadow-md hover:border-red-400 transition">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ item['image_url'] }}" alt="{{ item['team_name'] }}" class="w-14 h-14 object-cover rounded-lg border border-red-500/50" onerror="this.src='https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=800'">
+                        <div>
+                            <h4 class="font-bold text-white text-xs line-clamp-1">{{ item['team_name'] }}</h4>
+                            <p class="text-[11px] text-slate-300 line-clamp-1">{{ item['season'] }}</p>
+                            <span class="text-[10px] text-amber-300 font-bold">ไซส์ {{ item['size'] }} &bull; ฿{{ "{:,.0f}".format(item['price']) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <span class="px-2 py-1 rounded-md bg-red-600 text-white font-black font-sports text-xs block text-center shadow animate-pulse">
+                            เหลือ {{ item['stock_quantity'] }} ตัว!
+                        </span>
+                        <a href="{{ url_for('admin_inventory') }}" class="text-[10px] text-emerald-400 hover:underline mt-1 block">
+                            เติมสต็อก &rarr;
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-6 text-xs text-slate-400">
+                <i class="fa-solid fa-circle-check text-emerald-400 text-2xl mb-2 block"></i>
+                ยอดเยี่ยม! ไม่มีรายการเสื้อฟุตบอลใดที่มีสต็อกต่ำกว่า 3 ตัว
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- Recent Orders Table (Module 3 & 5 Integration) -->
+    <div class="glass-panel-dark rounded-3xl border border-emerald-800/40 p-6 shadow-2xl">
+        <div class="flex items-center justify-between pb-4 mb-4 border-b border-emerald-800/40">
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-list-check text-retro-gold"></i>
+                <span>รายการคำสั่งซื้อล่าสุด (Recent Orders)</span>
+            </h2>
+            <a href="{{ url_for('admin_orders') }}" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition">
+                ดูคำสั่งซื้อทั้งหมด &rarr;
+            </a>
+        </div>
+
+        {% if recent_orders %}
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left text-xs">
+                <thead>
+                    <tr class="border-b border-emerald-800/40 text-slate-400 font-bold uppercase tracking-wider">
+                        <th class="py-3 px-3">Order ID</th>
+                        <th class="py-3 px-3">ลูกค้า</th>
+                        <th class="py-3 px-3">วันที่</th>
+                        <th class="py-3 px-3">ยอดรวม</th>
+                        <th class="py-3 px-3">สถานะปัจจุบัน</th>
+                        <th class="py-3 px-3 text-right">เปลี่ยนสถานะด่วน</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-emerald-800/30">
+                    {% for order in recent_orders %}
+                    <tr class="hover:bg-pitch-900/60 transition">
+                        <td class="py-3 px-3 font-mono font-bold text-white">#ORD-{{ "%05d"|format(order['id']) }}</td>
+                        <td class="py-3 px-3">
+                            <span class="font-semibold text-white block">{{ order['customer_name'] or 'ลูกค้าทั่วไป' }}</span>
+                            <span class="text-[10px] text-slate-400">{{ order['customer_email'] }}</span>
+                        </td>
+                        <td class="py-3 px-3 text-slate-300">{{ order['created_at'][:16] }}</td>
+                        <td class="py-3 px-3 font-bold text-retro-gold font-sports text-sm">฿{{ "{:,.0f}".format(order['total_amount']) }}</td>
+                        <td class="py-3 px-3">
+                            {% if order['status'] == 'Pending' %}
+                            <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold text-[10px]">
+                                รอจัดส่ง (Pending)
+                            </span>
+                            {% elif order['status'] == 'Shipped' %}
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold text-[10px]">
+                                จัดส่งแล้ว (Shipped)
+                            </span>
+                            {% elif order['status'] == 'Paid' %}
+                            <span class="px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/40 font-bold text-[10px]">
+                                ชำระแล้ว (Paid)
+                            </span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 font-bold text-[10px]">
+                                {{ order['status'] }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                            <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order['id']) }}" class="inline-flex items-center gap-1.5">
+                                <select name="status" class="bg-pitch-950 border border-emerald-700/50 rounded-lg py-1 px-2 text-[11px] text-white focus:outline-none focus:border-emerald-500">
+                                    <option value="Pending" {% if order['status'] == 'Pending' %}selected{% endif %}>Pending</option>
+                                    <option value="Paid" {% if order['status'] == 'Paid' %}selected{% endif %}>Paid</option>
+                                    <option value="Shipped" {% if order['status'] == 'Shipped' %}selected{% endif %}>Shipped</option>
+                                    <option value="Cancelled" {% if order['status'] == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                                </select>
+                                <button type="submit" class="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-[10px] transition" title="บันทึกสถานะ">
+                                    บันทึก
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-xs text-center text-slate-400 py-6">ยังไม่มีคำสั่งซื้อในระบบ</p>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

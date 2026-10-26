@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vintage Football Shirts - เสื้อฟุตบอลวินเทจหายาก{% endblock %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pitch: {
+                            950: '#07160e',
+                            900: '#0b2416',
+                            800: '#113522',
+                            700: '#1b4d32',
+                            600: '#16a34a',
+                            500: '#22c55e',
+                            400: '#4ade80'
+                        },
+                        retro: {
+                            gold: '#f59e0b',
+                            amber: '#d97706',
+                            cream: '#fef3c7'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom Theme CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-pitch-950 text-slate-100 min-h-screen flex flex-col font-thai selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Demo & Presentation Bar (Phase 4 Demo Helper) -->
+    <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-emerald-950 border-b border-emerald-800/40 text-xs py-2 px-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-retro-gold text-slate-950 font-bold text-[11px]">⚽</span>
+                <span class="font-bold text-emerald-400">โครงงานพัฒนาระบบ:</span>
+                <span class="text-slate-300 hidden sm:inline">ร้านขายเสื้อฟุตบอลมือสองวินเทจหายาก</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-900/60 border border-emerald-700/60 text-emerald-300 font-mono text-[11px]">
+                    วิศรุต พุกพะยา (67160371)
+                </span>
+            </div>
+
+            <!-- Quick Role Switchers for presentation -->
+            <div class="flex items-center gap-2 flex-wrap">
+                <span class="text-slate-400 text-[11px]">ทดสอบ Flow:</span>
+                
+                <a href="{{ url_for('quick_login', role='customer') }}" class="px-2.5 py-1 rounded-md bg-emerald-700/60 hover:bg-emerald-600 text-white border border-emerald-500/50 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-user text-[10px]"></i>
+                    <span>โหมดลูกค้า (Customer)</span>
+                </a>
+
+                <a href="{{ url_for('quick_login', role='admin') }}" class="px-2.5 py-1 rounded-md bg-amber-600/70 hover:bg-amber-500 text-white border border-amber-400/50 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                    <span>โหมดแอดมิน (Admin)</span>
+                </a>
+
+                {% if current_user %}
+                <span class="text-slate-400 text-[11px] ml-2 hidden md:inline">
+                    กำลังใช้งาน: <strong class="text-white">{{ current_user['name'] }}</strong>
+                </span>
+                <a href="{{ url_for('logout') }}" class="text-slate-400 hover:text-red-400 text-[11px] underline ml-1">ออกจากระบบ</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <header class="bg-pitch-900/90 backdrop-blur-md border-b border-emerald-800/40 sticky top-9 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand / Logo -->
+                <a href="{{ url_for('catalog') }}" class="flex items-center gap-3 group">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-retro-gold to-emerald-600 p-0.5 shadow-lg shadow-emerald-950/50 group-hover:scale-105 transition transform">
+                        <div class="w-full h-full bg-pitch-950 rounded-[10px] flex items-center justify-center">
+                            <i class="fa-regular fa-futbol text-2xl text-retro-gold group-hover:rotate-45 transition duration-500"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xl font-black font-sports tracking-wider text-white group-hover:text-emerald-400 transition">VINTAGE KITS</span>
+                            <span class="text-[10px] uppercase font-bold px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded">1990-2000s</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 tracking-wide">เสื้อฟุตบอลแท้หายาก &amp; คลาสสิก</p>
+                    </div>
+                </a>
+
+                <!-- Nav Menu Links -->
+                <nav class="hidden md:flex items-center gap-1">
+                    <a href="{{ url_for('catalog') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition {% if request.path == '/' %}bg-emerald-600/20 text-emerald-400 border border-emerald-600/30{% else %}text-slate-300 hover:text-white hover:bg-pitch-800/60{% endif %}">
+                        <i class="fa-solid fa-shirt mr-1.5"></i> เสื้อฟุตบอลทั้งหมด
+                    </a>
+
+                    {% if current_user and current_user['role'] == 'admin' %}
+                    <!-- Admin Links -->
+                    <div class="h-6 w-px bg-emerald-800/60 mx-2"></div>
+                    
+                    <a href="{{ url_for('admin_dashboard') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition relative {% if request.path == '/admin' %}bg-amber-500/20 text-amber-400 border border-amber-500/40{% else %}text-amber-300/80 hover:text-amber-300 hover:bg-pitch-800/60{% endif %}">
+                        <i class="fa-solid fa-chart-line mr-1.5"></i> Admin Dashboard
+                        {% if pending_orders_count > 0 %}
+                        <span class="absolute -top-1 -right-1 px-1.5 py-0.2 bg-red-600 text-white rounded-full text-[10px] font-bold animate-pulse">{{ pending_orders_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <a href="{{ url_for('admin_inventory') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition relative {% if request.path == '/admin/inventory' %}bg-amber-500/20 text-amber-400 border border-amber-500/40{% else %}text-amber-300/80 hover:text-amber-300 hover:bg-pitch-800/60{% endif %}">
+                        <i class="fa-solid fa-boxes-stacked mr-1.5"></i> คลังสินค้า (CRUD)
+                        {% if low_stock_count > 0 %}
+                        <span class="ml-1.5 px-2 py-0.5 bg-red-600/80 text-white rounded-full text-[10px] font-bold" title="สต็อกต่ำกว่า 3 ชิ้น">{{ low_stock_count }}</span>
+                        {% endif %}
+                    </a>
+
+                    <a href="{{ url_for('admin_orders') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition {% if request.path == '/admin/orders' %}bg-amber-500/20 text-amber-400 border border-amber-500/40{% else %}text-amber-300/80 hover:text-amber-300 hover:bg-pitch-800/60{% endif %}">
+                        <i class="fa-solid fa-truck-fast mr-1.5"></i> จัดการออเดอร์
+                    </a>
+                    {% endif %}
+
+                    {% if current_user and current_user['role'] == 'customer' %}
+                    <a href="{{ url_for('my_orders') }}" class="px-3.5 py-2 rounded-lg text-sm font-semibold transition {% if request.path == '/my-orders' %}bg-emerald-600/20 text-emerald-400 border border-emerald-600/30{% else %}text-slate-300 hover:text-white hover:bg-pitch-800/60{% endif %}">
+                        <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> ประวัติสั่งซื้อ
+                    </a>
+                    {% endif %}
+                </nav>
+
+                <!-- Right Action Buttons -->
+                <div class="flex items-center gap-3">
+                    <!-- Cart Button with badge -->
+                    <a href="{{ url_for('cart') }}" class="relative p-2.5 rounded-xl bg-pitch-800 border border-emerald-700/50 hover:border-emerald-500 text-slate-200 hover:text-white transition group flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-emerald-400 group-hover:scale-110 transition"></i>
+                        <span class="text-sm font-semibold hidden sm:inline">ตะกร้า</span>
+                        <span id="cart-badge" class="hidden absolute -top-2 -right-2 w-5 h-5 rounded-full bg-retro-gold text-slate-950 font-extrabold text-[11px] items-center justify-center font-sports shadow-md">
+                            0
+                        </span>
+                    </a>
+
+                    <!-- User Account / Login -->
+                    {% if current_user %}
+                    <div class="relative group">
+                        <button class="flex items-center gap-2 px-3 py-2 rounded-xl bg-pitch-800/80 border border-emerald-700/40 hover:border-emerald-500 transition">
+                            <div class="w-7 h-7 rounded-full bg-emerald-700 flex items-center justify-center text-xs font-bold text-white uppercase">
+                                {{ current_user['name'][0] }}
+                            </div>
+                            <span class="text-xs font-semibold text-slate-200 max-w-[120px] truncate hidden md:inline">{{ current_user['name'] }}</span>
+                            <i class="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                        </button>
+                        <!-- Dropdown -->
+                        <div class="absolute right-0 mt-2 w-48 rounded-xl bg-pitch-900 border border-emerald-700/50 shadow-2xl py-2 hidden group-hover:block z-50">
+                            <div class="px-4 py-2 border-b border-emerald-800/50">
+                                <p class="text-xs text-slate-400">เข้าสู่ระบบในชื่อ</p>
+                                <p class="text-xs font-bold text-white truncate">{{ current_user['email'] }}</p>
+                                <span class="inline-block mt-1 px-2 py-0.5 text-[10px] font-bold rounded {% if current_user['role'] == 'admin' %}bg-amber-500/20 text-amber-400{% else %}bg-emerald-500/20 text-emerald-400{% endif %}">
+                                    {{ current_user['role'].upper() }}
+                                </span>
+                            </div>
+                            {% if current_user['role'] == 'admin' %}
+                            <a href="{{ url_for('admin_dashboard') }}" class="block px-4 py-2 text-xs text-slate-300 hover:bg-pitch-800 hover:text-white">
+                                <i class="fa-solid fa-chart-line mr-2 text-amber-400"></i> แดชบอร์ดแอดมิน
+                            </a>
+                            <a href="{{ url_for('admin_inventory') }}" class="block px-4 py-2 text-xs text-slate-300 hover:bg-pitch-800 hover:text-white">
+                                <i class="fa-solid fa-boxes-stacked mr-2 text-amber-400"></i> จัดการคลังเสื้อ (CRUD)
+                            </a>
+                            {% else %}
+                            <a href="{{ url_for('my_orders') }}" class="block px-4 py-2 text-xs text-slate-300 hover:bg-pitch-800 hover:text-white">
+                                <i class="fa-solid fa-clock-rotate-left mr-2 text-emerald-400"></i> ประวัติการสั่งซื้อ
+                            </a>
+                            {% endif %}
+                            <div class="border-t border-emerald-800/50 my-1"></div>
+                            <a href="{{ url_for('logout') }}" class="block px-4 py-2 text-xs text-red-400 hover:bg-red-500/10">
+                                <i class="fa-solid fa-arrow-right-from-bracket mr-2"></i> ออกจากระบบ
+                            </a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="flex items-center gap-2">
+                        <a href="{{ url_for('login') }}" class="px-3.5 py-2 text-xs font-semibold text-emerald-300 hover:text-white hover:bg-pitch-800 rounded-lg transition">
+                            เข้าสู่ระบบ
+                        </a>
+                        <a href="{{ url_for('register') }}" class="px-3.5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-md transition">
+                            สมัครสมาชิก
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Flash Messages Container -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 w-full">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="space-y-2">
+                    {% for category, message in messages %}
+                        <div class="flex items-center justify-between p-4 rounded-xl border {% if category == 'success' %}bg-emerald-950/80 border-emerald-500/60 text-emerald-200{% elif category == 'danger' %}bg-red-950/80 border-red-500/60 text-red-200{% elif category == 'warning' %}bg-amber-950/80 border-amber-500/60 text-amber-200{% else %}bg-slate-900 border-slate-700 text-slate-200{% endif %} shadow-lg">
+                            <div class="flex items-center gap-3">
+                                {% if category == 'success' %}
+                                    <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+                                {% elif category == 'danger' %}
+                                    <i class="fa-solid fa-circle-exclamation text-red-400 text-lg"></i>
+                                {% elif category == 'warning' %}
+                                    <i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-circle-info text-sky-400 text-lg"></i>
+                                {% endif %}
+                                <span class="text-sm font-medium">{{ message }}</span>
+                            </div>
+                            <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white text-sm">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Page Content Block -->
+    <main class="flex-1 pb-16">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Pitch Grass & Lines Decorative Separator -->
+    <div class="h-2 bg-gradient-to-r from-emerald-800 via-emerald-500 to-emerald-800 opacity-70"></div>
+
+    <!-- Footer -->
+    <footer class="bg-pitch-900 border-t border-emerald-800/40 text-slate-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Col 1 -->
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-regular fa-futbol text-retro-gold text-xl"></i>
+                        <span class="font-bold text-white font-sports text-base">VINTAGE KITS FC</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        ระบบร้านขายเสื้อฟุตบอลมือสองวินเทจหายาก รองรับมุมมองลูกค้า (Customer) และผู้ดูแลระบบ (Admin) พร้อมระบบประเมินสภาพและตัดสต็อกสินค้าทันที
+                    </p>
+                    <div class="flex items-center gap-2 text-xs text-retro-gold">
+                        <i class="fa-solid fa-shield-heart"></i>
+                        <span>รับประกันเสื้อแท้ 100% สภาพตรงปก</span>
+                    </div>
+                </div>
+
+                <!-- Col 2: Modules -->
+                <div>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3 text-emerald-400">6 โมดูลหลักตามแผนงาน</h4>
+                    <ul class="space-y-1.5 text-xs">
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 1. Product Catalog &amp; Filter</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 2. Shopping Cart &amp; Checkout</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 3. Order Management (Admin)</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 4. Customer Accounts &amp; History</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 5. Admin Dashboard &amp; Low-Stock Alert</li>
+                        <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i> 6. Inventory CRUD Management</li>
+                    </ul>
+                </div>
+
+                <!-- Col 3: Database & Tech Stack -->
+                <div>
+                    <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3 text-emerald-400">โครงสร้างระบบ &amp; ฐานข้อมูล</h4>
+                    <ul class="space-y-1.5 text-xs">
+                        <li><span class="font-mono text-emerald-300">Users:</span> id, name, email, password, role, address</li>
+                        <li><span class="font-mono text-emerald-300">Products:</span> id, team, season, size, condition, price, stock</li>
+                        <li><span class="font-mono text-emerald-300">Orders:</span> id, user_id, total, status, address</li>
+                        <li><span class="font-mono text-emerald-300">Order_Items:</span> id, order_id, product_id, qty, price</li>
+                        <li class="pt-1 text-slate-500"><i class="fa-solid fa-bolt text-retro-gold mr-1"></i> Python Flask + SQLite3 + Tailwind</li>
+                    </ul>
+                </div>
+
+                <!-- Col 4: Project Credit -->
+                <div class="bg-pitch-950/80 p-4 rounded-xl border border-emerald-800/40 space-y-2">
+                    <h4 class="text-white font-bold text-xs text-retro-gold">ข้อมูลผู้จัดทำโครงงาน</h4>
+                    <p class="text-xs text-white font-medium">นายวิศรุต พุกพะยา</p>
+                    <p class="text-xs text-emerald-400 font-mono">รหัสนิสิต: 67160371</p>
+                    <p class="text-[11px] text-slate-400 pt-2 border-t border-emerald-800/30">
+                        Vintage Football Shirts E-Commerce System (ตามแผนงาน Web Application)
+                    </p>
+                </div>
+            </div>
+
+            <div class="border-t border-emerald-800/30 mt-8 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-4">
+                <p>&copy; 2026 Vintage Football Shirts E-Commerce System. All rights reserved.</p>
+                <div class="flex items-center gap-4">
+                    <span class="inline-flex items-center gap-1 text-emerald-400">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        ระบบพร้อมทำงานสมบูรณ์ 100%
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Cart JS -->
+    <script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
